@@ -13,6 +13,8 @@ const player = { x: 50, y: 50, w: 30, h: 30, color: 'red', speed: 3 };
 //Cantidad de monedas
 let coinPoints = 0;
 
+let lives = 5;
+
 //Definicion de sonidos
 const collisionSound = new Audio('sound/colision.mp3');
 collisionSound.volume = 0.4;
@@ -24,6 +26,9 @@ const newLevelSound = new Audio('sound/next-level.mp3');
 
 const winSound = new Audio('sound/win.mp3');
 winSound.volume = 0.6;
+
+const gameOverSound = new Audio('sound/gameover.mp3');
+gameOverSound.volume = 0.5;
 
 const chiptuneSound = new Audio('sound/chiptune-loop.mp3');
 chiptuneSound.loop = true;
@@ -103,13 +108,30 @@ function update() {
     // Comprobación de colisión con obstáculos y retroceso del movimiento
     for (let obs of level.obstacles) {
         if (rectsCollide(player, obs)) {
-            if (keys['ArrowUp' ]) player.y += player.speed;
-            if (keys['ArrowDown' ]) player.y -= player.speed;
-            if (keys['ArrowLeft' ]) player.x += player.speed;
-            if (keys['ArrowRight' ]) player.x -= player. speed;   
-
-            //Sonido al colisionar
-            collisionSound.play();
+            if (keys['ArrowUp']) player.y += player.speed;
+            if (keys['ArrowDown']) player.y -= player.speed;
+            if (keys['ArrowLeft']) player.x += player.speed;
+            if (keys['ArrowRight']) player.x -= player.speed;
+    
+            // Solo restamos una vida por colisión
+            if (!player.recentHit) {
+                lives--;
+                collisionSound.play();
+                player.recentHit = true;
+    
+                // Pequeño delay para no perder muchas vidas en 1 frame
+                setTimeout(() => player.recentHit = false, 500);
+            }
+    
+            // Si se queda sin vidas...
+            if (lives <= 0) {
+                gameOverSound.play();
+                alert("¡Game Over!");
+                lives = 5;
+                coinPoints = 0;
+                currentLevel = 0;
+                resetLevel();
+            }
         }
     }
 
@@ -142,6 +164,7 @@ function update() {
             currentLevel = 0;
             resetLevel();
             coinPoints = 0;
+            lives = 5;
         }
     }
 }
@@ -150,11 +173,11 @@ function update() {
 function resetLevel() {
     player.x = 50;
     player.y = 50;
-    levels[currentLevel].coins.forEach(c => c.collected = false);
+    player.recentHit = false; // reset del estado de golpe
 
-    // Reinicia el estado de las teclas
+    levels[currentLevel].coins.forEach(c => c.collected = false);
     keys = {};
-}   
+}
 // Función que dibuja todos los elementos del juego
 function draw() {
     // Limpia el lienzo
@@ -186,6 +209,10 @@ function draw() {
     //Muestra la cantidad de monedas
     ctx.fillStyle = 'gold';
     ctx.fillText(`💰: ${coinPoints}`, 70, 20);
+    // Mostrar corazones
+    ctx.fillStyle = 'red';
+    ctx.font = '15px sans-serif';
+    ctx.fillText(`❤️`.repeat(lives), 130, 20);  // Puedes ajustar la posición
 }
 
 
