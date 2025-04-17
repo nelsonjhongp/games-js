@@ -10,6 +10,9 @@ document.addEventListener('keyup', (e) => keys[e.key] = false);
 // Definición del jugador
 const player = { x: 50, y: 50, w: 30, h: 30, color: 'red', speed: 3 };
 
+//Cantidad de monedas
+let coinPoints = 0;
+
 //Definicion de sonidos
 const collisionSound = new Audio('sound/colision.mp3');
 collisionSound.volume = 0.4;
@@ -25,7 +28,6 @@ winSound.volume = 0.6;
 const chiptuneSound = new Audio('sound/chiptune-loop.mp3');
 chiptuneSound.loop = true;
 chiptuneSound.volume = 0.4;
-chiptuneSound.play();
 
 // Definición de los niveles con obstáculos y monedas
 const levels = [
@@ -46,9 +48,9 @@ const levels = [
             { x: 400, y: 200, w: 20, h: 100 }
         ],
         coins: [
-            { x: 50, y: 50, collected: false },
+            { x: 550, y: 50, collected: false },
             { x: 550, y: 350, collected: false },
-            { x: 300, y: 180, collected: false }
+            { x: 80, y: 180, collected: false }
         ]
     },
     {
@@ -96,6 +98,8 @@ function update() {
     player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
     player.y = Math.max(0, Math.min(canvas.height - player.h, player.y));
 
+    chiptuneSound.play();
+
     // Comprobación de colisión con obstáculos y retroceso del movimiento
     for (let obs of level.obstacles) {
         if (rectsCollide(player, obs)) {
@@ -120,6 +124,7 @@ function update() {
             ) {
                 coin.collected = true;
                 coinSound.play();
+                coinPoints++;
             }
         }
     }
@@ -136,6 +141,7 @@ function update() {
             alert("¡Felicitaciones! Nelson Jhon, Gil Pari!");
             currentLevel = 0;
             resetLevel();
+            coinPoints = 0;
         }
     }
 }
@@ -175,7 +181,11 @@ function draw() {
     }
     // Muestra el número del nivel actual
     ctx.fillStyle = 'white';
+    ctx.font = '15px sans-serif';
     ctx.fillText(`Nivel: ${currentLevel + 1}`, 10, 20);
+    //Muestra la cantidad de monedas
+    ctx.fillStyle = 'gold';
+    ctx.fillText(`💰: ${coinPoints}`, 70, 20);
 }
 
 
