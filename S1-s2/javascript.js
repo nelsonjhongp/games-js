@@ -9,6 +9,8 @@ class Escena extends Phaser.Scene {
         this.load.image('mano1', 'img/mano1.png');
         this.load.image('mano2', 'img/mano2.png');
         this.load.image('leftbtn', 'img/flecha.png');
+
+        this.load.audio('win', 'sound/win.mp3');
     }
     
     create() {
@@ -91,21 +93,38 @@ class Escena extends Phaser.Scene {
         this.alguienGano = false;
 
         this.pintarMarcador();
+
+        this.nombreTexto = this.add.text(480, 600, 'Nelson Jhon, Gil Pari', {
+            fontFamily: 'Arial',
+            fontSize: 40,
+            color: '#ffff00',
+            stroke: '#000000',
+            strokeThickness: 6
+        }).setOrigin(0.5);
+        this.nombreTexto.setVisible(true);
     }
 
     update(){
         this.bola.rotation +=0.1;
 
         if (this.bola.x < 0 && this.alguienGano === false) {
-            alert('player1 has perdido');
             this.alguienGano = true;
             this.marcadorMano2.text = parseInt(this.marcadorMano2.text) + 1;
-            this.colocarPelota();
-        } else if (this.bola.x > 960 && this. alguienGano === false) {
-            alert('player2 has perdido');
+            this.sonidoWin = this.sound.add('win');
+            this.sonidoWin.play();
+            setTimeout(() => {
+                alert('Player 1 ha perdido');
+                this.colocarPelota();
+            }, 500);
+        } else if (this.bola.x > 960 && this.alguienGano === false) {
             this.alguienGano = true;
             this.marcadorMano1.text = parseInt(this.marcadorMano1.text) + 1;
-            this.colocarPelota();
+            this.sonidoWin = this.sound.add('win');
+            this.sonidoWin.play();
+            setTimeout(() => {
+                alert('Player 2 ha perdido');
+                this.colocarPelota();
+            }, 500);
         }
 
         if (this.mano1.getData('direccionVertical') === 1 || this.teclaW.isDown) {
